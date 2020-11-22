@@ -118,8 +118,8 @@ function populateChart(data) {
     data: {
       labels: ["Bench Press", "Running", "Dead Lifts", "Squats", "Rowing"],
       datasets: [
-        {
-          label: "Excercises Performed",
+        {// changed to exercises
+          label: "Exercises Performed",
           backgroundColor: [
             "#3e95cd",
             "#8e5ea2",
@@ -134,7 +134,7 @@ function populateChart(data) {
     options: {
       title: {
         display: true,
-        text: "Excercises Performed"
+        text: "exercises Performed"
       }
     }
   });
@@ -145,7 +145,7 @@ function populateChart(data) {
       labels: ["Bench Press", "Running", "Dead Lifts", "Squats", "Rowing"],
       datasets: [
         {
-          label: "Excercises Performed",
+          label: "Exercises Performed",
           backgroundColor: [
             "#3e95cd",
             "#8e5ea2",
@@ -160,7 +160,7 @@ function populateChart(data) {
     options: {
       title: {
         display: true,
-        text: "Excercises Performed"
+        text: "Exercises Performed"
       }
     }
   });
