@@ -12,41 +12,84 @@ router.get("/api/workouts", (req, res) => {
     })
     .catch(err => {
       res.json(err)
-      console.log('get route eerrr');
+      
     });
 });
 
+   // add exercise
+   router.put("/api/workouts/:id", (req, res) => {
 
-router.post("/api/workouts", (req, res) => {
-  db.Workout.create({})
-    .then(dbWorkout => {
+    db.Workout.findOneAndUpdate(
+        { _id: req.params.id },
+        {
+            $inc: { totalDuration: req.body.duration },
+            $push: { exercises: req.body }
+        },
+        { new: true }).then(dbWorkout => {
+            res.json(dbWorkout);
+        }).catch(err => {
+            res.json(err);
+        });
+
+});
+// router.get("api/workouts/range",(req,res)=>{
+//   db.Workout.find()
+//   .then(dbdata=>{
+//     res.json(dbdata)
+//   })
+//   .catch (err =>{
+//     res.json(err)
+//   })
+// })
+
+router.post("/api/workouts", ({body}, res) => {
+  db.Workout.create({body})
+  .then(({ _id }) => db.User.findOneAndUpdate({}, { $push: { exercises: _id } }, { new: true }))
+  .then(dbUser => {
+    res.json(dbUser)
+    .catch(err => {
+      res.json(err);
+    });
+});})
+
+// router.put("/api/workouts/:id", ({ params, body }, res) => {
+//   db.Workout.findByIdAndUpdate(
+//     {_id:params.id},
+//     { $push: { exercises: body } },
+//     // "runValidators" will ensure new exercises meet our schema requirements
+//     { upsert:true, useFindAndModify:false })
+//     .then(updatedWorkout=>{
+//       res.json(updatedWorkout)
+//     }
+//   )
+//     // .then(dbWorkout => {
+//     //   res.json(dbWorkout);
+//     // })
+//     .catch(err => {
+//       res.json(err);
+//     })
+// });
+// router.put('/api/workouts/:id', ({ body }, res) => {
+//   db.Workout.updateEvents(body)
+//   .then(({ _id }) => db.User.findByIdAndUpdate({}, { $push: { exercises: _id } }, { new: true }))
+//   .then(dbUser => {
+//     res.json(dbUser);
+//   })
+//   .catch(err => {
+//     res.json(err);
+//     });})
+
+router.get("/api/workouts/range", (req, res) => {
+
+  db.Workout.find({}).then(dbWorkout => {
+      console.log(dbWorkout);
+
       res.json(dbWorkout);
-    })
-    .catch(err => {
+  }).catch(err => {
       res.json(err);
-    });
+  });
+
 });
-
-router.put("/api/workouts/:id", ({ params, body }, res) => {
-  db.Workout.findByIdAndUpdate(
-    {_id:params.id},
-    { $push: { exercises: body } },
-    // "runValidators" will ensure new exercises meet our schema requirements
-    { upsert:true, useFindAndModify:false })
-    .then(updatedWorkout=>{
-      res.json(updatedWorkout)
-    }
-  )
-    // .then(dbWorkout => {
-    //   res.json(dbWorkout);
-    // })
-    .catch(err => {
-      res.json(err);
-    })
-});
-
-
-
 
 module.exports = router;
 
@@ -125,4 +168,4 @@ module.exports = router;
 
 
 
-module.exports=router
+// module.exports=router
