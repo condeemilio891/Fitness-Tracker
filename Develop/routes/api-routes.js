@@ -1,55 +1,21 @@
 const router = require("express").Router();
+const { Router } = require("express");
 const db = require("../models");
 
 
+ 
+
+
 router.get("/api/workouts", (req, res) => {
+  console.log('get route')
+  db.Workout.find({})
+    .then(dbWorkouts => {
+      res.json(dbWorkouts);
+    })
+    .catch(err => {
+      res.json(err)
+    })})
 
-  db.Workout.find({}).then(dbWorkout => {
-
-      res.json(dbWorkout);
-  }).catch(err => {
-      res.json(err);
-  });
-});
-
-// get workouts from database 
-// router.get("/api/workouts", (req, res) => {
-//   console.log('get route')
-//   db.Workout.find({})
-//     .then(dbWorkouts => {
-//       res.json(dbWorkouts);
-//     })
-//     .catch(err => {
-//       res.json(err)
-      
-//     });
-// });
-router.get("/api/workouts/:id", (req, res) => {
-
-  db.Workout.find({}).then(dbWorkout => {
-
-      res.json(dbWorkout);
-  }).catch(err => {
-      res.json(err);
-  });
-});
-
-   // add exercise
-   router.put("/api/workouts/:id", (req, res) => {
-
-    db.Workout.findOneAndUpdate(
-        { _id: req.params.id },
-        {
-            $inc: { totalDuration: req.body.duration },
-            $push: { exercises: req.body }
-        },
-        { new: true }).then(dbWorkout => {
-            res.json(dbWorkout);
-        }).catch(err => {
-            res.json(err);
-        });
-
-});
 
 
 router.post("/api/workouts", ({ body }, res) => {
@@ -62,6 +28,71 @@ router.post("/api/workouts", ({ body }, res) => {
 });
 
 
+
+router.put("/api/workouts/:id", ({body, params}, res) => {
+  // console.log(body, params)
+  const workoutId = params.id;
+  let savedExercises = [];
+
+  // gets all the currently saved exercises in the current workout
+  db.Workout.find({_id: workoutId})
+      .then(dbWorkout => {
+          // console.log(dbWorkout)
+          savedExercises = dbWorkout[0].exercises;
+          res.json(dbWorkout[0].exercises);
+          let allExercises = [...savedExercises, body]
+          console.log(allExercises)
+          updateWorkout(allExercises)
+      })
+      .catch(err => {
+          res.json(err);
+      })})
+
+      app.put("/markread/:id", ({ params }, res) => {
+        db.books.update(
+          {
+            _id: mongojs.ObjectId(params.id)
+          },
+          {
+            $set: {
+              read: true
+            }
+          },
+      
+          (error, edited) => {
+            if (error) {
+              console.log(error);
+              res.send(error);
+            } else {
+              console.log(edited);
+              res.send(edited);
+            }
+          }
+        );
+      });
+      
+      app.put("/markunread/:id", ({ params }, res) => {
+        db.books.update(
+          {
+            _id: mongojs.ObjectId(params.id)
+          },
+          {
+            $set: {
+              read: false
+            }
+          },
+      
+          (error, edited) => {
+            if (error) {
+              console.log(error);
+              res.send(error);
+            } else {
+              console.log(edited);
+              res.send(edited);
+            }
+          }
+        );
+      });
 
 router.get("/api/workouts/range", (req, res) => {
 
