@@ -1,87 +1,26 @@
-async function init() {
-  const allWorkouts = await API.getAllWorkouts();
-  const lastWorkout = allWorkouts[allWorkouts.length - 1]
-  //const lastWorkout = await API.getLastWorkout();
-  console.log(lastWorkout, allWorkouts);
+async function initWorkout() {
+  const lastWorkout = await API.getLastWorkout();
+  console.log("Last workout:", lastWorkout);
+  if (lastWorkout) {
+    document
+      .querySelector("a[href='/exercise?']")
+      .setAttribute("href", `/exercise?id=${lastWorkout._id}`);
 
-  document
-    .querySelector("a[href='/exercise?']")
-    .setAttribute("href", `/exercise?id=${lastWorkout._id}`);
+    const workoutSummary = {
+      date: formatDate(lastWorkout.day),
+      totalDuration: lastWorkout.totalDuration,
+      numExercises: lastWorkout.exercises.length,
+      ...tallyExercises(lastWorkout.exercises)
+    };
 
-
-  allWorkouts.map(workout => {
-    var tr = document.createElement("tr");
-    var td1 = document.createElement("td")
-    td1.innerText = formatDate(workout.day)
-    var td2 = document.createElement("td")
-    td2.innerText = workout.totalDuration
-    var td3 = document.createElement("td")
-    td3.innerText = workout.exercises.length
-
-    var td4 = document.createElement("td")
-    var button = document.createElement("button");
-    button.value = workout._id;
-    button.onclick = changeWorkout
-    button.innerText = "MODIFY"
-    button.classList.add("btn")
-    button.classList.add("btn-default")
-    
-    var td5 = document.createElement("td")
-    var buttonSELECT = document.createElement("button");
-    buttonSELECT.value = JSON.stringify(workout)
-    buttonSELECT.innerText = "SELECT"
-    buttonSELECT.onclick = selectWorkout
-    buttonSELECT.classList.add("btn")
-    buttonSELECT.classList.add("btn-default")
-    td5.appendChild(buttonSELECT)
-
-    td4.appendChild(button)
-    tr.appendChild(td1)
-    tr.appendChild(td2)
-    tr.appendChild(td3)
-    tr.appendChild(td4)
-    tr.appendChild(td5)
-    var parent = document.getElementById("prev-workout-table")
-    parent.appendChild(tr)
-  })
-
-  renderWorkoutSummary(WorkoutSummary(
-    lastWorkout.day,
-    lastWorkout.totalDuration,
-    lastWorkout.exercises.length,
-    lastWorkout.exercises
-  ));
-}
-
-function selectWorkout() {
-  var data = JSON.parse(this.value);
-  console.log(data)
-
-  document
-    .querySelector("#modify")
-    .setAttribute("href", `/exercise?id=${data._id}`);
-
-  renderWorkoutSummary(WorkoutSummary(
-    data.day,
-    data.totalDuration,
-    data.exercises.length,
-    data.exercises
-  ))
-}
-
-function changeWorkout() {
-  console.log(this.value)
-  location.href = "/exercise?id=" + this.value
-}
-
-function WorkoutSummary(day, dur, length) {
-  this.date = formatDate(day);
-  this.totalDuration = dur;
-  this.numExercises = length;
+    renderWorkoutSummary(workoutSummary);
+  } else {
+    renderNoWorkoutText()
+  }
 }
 
 function tallyExercises(exercises) {
-  return exercises.reduce((acc, curr) => {
+  const tallied = exercises.reduce((acc, curr) => {
     if (curr.type === "resistance") {
       acc.totalWeight = (acc.totalWeight || 0) + curr.weight;
       acc.totalSets = (acc.totalSets || 0) + curr.sets;
@@ -89,9 +28,9 @@ function tallyExercises(exercises) {
     } else if (curr.type === "cardio") {
       acc.totalDistance = (acc.totalDistance || 0) + curr.distance;
     }
-
     return acc;
   }, {});
+  return tallied;
 }
 
 function formatDate(date) {
@@ -107,7 +46,6 @@ function formatDate(date) {
 
 function renderWorkoutSummary(summary) {
   const container = document.querySelector(".workout-stats");
-  container.innerHTML = ""
 
   const workoutKeyMap = {
     date: "Date",
@@ -133,19 +71,17 @@ function renderWorkoutSummary(summary) {
   });
 }
 
-function WorkoutSummary(day, dur, len, exer) {
-  return {
-    date: formatDate(day),
-    totalDuration: dur,
-    numExercises: len,
-    ...tallyExercises(exer)
-  };
+function renderNoWorkoutText() {
+  const container = document.querySelector(".workout-stats");
+  const p = document.createElement("p");
+  const strong = document.createElement("strong");
+  strong.textContent = "You have not created a workout yet!"
+
+  p.appendChild(strong);
+  container.appendChild(p);
 }
 
-init();
-
-
-
+initWorkout();
 
 
 
