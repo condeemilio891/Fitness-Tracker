@@ -3,4 +3,4 @@
 
 <a href="https://fierce-bayou-97965.herokuapp.com/">This is a link to the tracker</a>
 
-<img src="picofFt.png">
+<img src="picofFT.png">
